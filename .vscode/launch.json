@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "COMPETE: Netlify Dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run netlify:dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "COMPETE: API Function",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "COMPETE: Full Stack",
+      "configurations": ["COMPETE: Netlify Dev", "COMPETE: API Function"]
+    }
+  ]
+}

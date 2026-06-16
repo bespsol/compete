@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.netlify/
+.tanstack/
+.env
+.appdata/
+coverage/
+*.log
+.DS_Store

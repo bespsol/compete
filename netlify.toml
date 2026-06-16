@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  publish = "dist/client"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["mssql"]
+
+[dev]
+  command = "npm run dev"
+  targetPort = 3000
+  port = 8888
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true

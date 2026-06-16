@@ -1,0 +1,373 @@
+{
+  "info": {
+    "_postman_id": "58b97ba0-7b5c-4e43-9ec7-compete-api",
+    "name": "COMPETE API",
+    "description": "Every COMPETE Netlify Function API. Run Request OTP, copy the returned local code to `otp`, then run Verify OTP. Create requests store their returned IDs automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "System & Authentication",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": { "raw": "{{baseUrl}}/health" } }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"new.coach@example.test\",\n  \"firstName\": \"Taylor\",\n  \"lastName\": \"Reed\",\n  \"phone\": \"07700 900123\",\n  \"role\": \"coach\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register" }
+          }
+        },
+        {
+          "name": "Request OTP",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.code) pm.environment.set('otp', body.code);"] }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"purpose\": \"login\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/request-otp" }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.token) pm.environment.set('token', body.token);"] }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otp}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/verify-otp" }
+          }
+        },
+        {
+          "name": "Current User",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/auth/me" } }
+        },
+        {
+          "name": "Logout",
+          "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/auth/logout" } }
+        },
+        {
+          "name": "Dashboard",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/dashboard" } }
+        }
+      ]
+    },
+    {
+      "name": "Gyms & Fighters",
+      "item": [
+        {
+          "name": "List Gyms",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/gyms" } }
+        },
+        {
+          "name": "Create Gym",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.gymId) pm.environment.set('gymId', body.gymId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"City Combat Academy\",\n  \"email\": \"hello@citycombat.test\",\n  \"phone\": \"020 7946 0011\",\n  \"websiteUrl\": \"https://citycombat.example\",\n  \"addressLine1\": \"12 Ring Road\",\n  \"townCity\": \"London\",\n  \"postcode\": \"E1 1AA\",\n  \"countryCode\": \"GB\",\n  \"bio\": \"Muay Thai, boxing and junior development.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/gyms" }
+          }
+        },
+        {
+          "name": "Get Gym",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/gyms/{{gymId}}" } }
+        },
+        {
+          "name": "Update Gym Contacts",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"events@citycombat.test\",\n  \"phone\": \"020 7946 0022\",\n  \"townCity\": \"London\",\n  \"postcode\": \"E1 1AB\"\n}" },
+            "url": { "raw": "{{baseUrl}}/gyms/{{gymId}}" }
+          }
+        },
+        {
+          "name": "List Fighters",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/fighters" } }
+        },
+        {
+          "name": "Create Fighter",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.fighterId) pm.environment.set('fighterId', body.fighterId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"gymId\": \"{{gymId}}\",\n  \"firstName\": \"Avery\",\n  \"lastName\": \"Cole\",\n  \"dateOfBirth\": \"2002-05-19\",\n  \"gender\": \"female\",\n  \"nationality\": \"British\",\n  \"heightCm\": 168.5,\n  \"currentWeightKg\": 60.4,\n  \"stance\": \"orthodox\",\n  \"experienceSummary\": \"Four interclubs and one decision bout.\",\n  \"disabilities\": \"None declared\",\n  \"medicalConditions\": \"None declared\",\n  \"emergencyContactName\": \"Morgan Cole\",\n  \"emergencyContactPhone\": \"07700 900222\",\n  \"bio\": \"Technical Muay Thai fighter.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/fighters" }
+          }
+        },
+        {
+          "name": "Get Fighter",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/fighters/{{fighterId}}" } }
+        },
+        {
+          "name": "Update Fighter Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"currentWeightKg\": 60.1,\n  \"stance\": \"orthodox\",\n  \"experienceSummary\": \"Five interclubs and one decision bout.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/fighters/{{fighterId}}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events, Invitations & Rosters",
+      "item": [
+        {
+          "name": "List Events",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events" } }
+        },
+        {
+          "name": "Create Event",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.eventId) pm.environment.set('eventId', body.eventId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"COMPETE Test Fight Night\",\n  \"eventType\": \"fight_night\",\n  \"status\": \"draft\",\n  \"description\": \"A test event created from Postman.\",\n  \"venueName\": \"The Test Arena\",\n  \"venueAddress\": \"1 Example Street, Manchester\",\n  \"startsAt\": \"2026-08-22T18:00:00.000Z\",\n  \"endsAt\": \"2026-08-22T23:00:00.000Z\",\n  \"doorsOpenAt\": \"2026-08-22T17:00:00.000Z\",\n  \"rosterDeadlineAt\": \"2026-08-01T17:00:00.000Z\",\n  \"weighInStartsAt\": \"2026-08-22T10:00:00.000Z\",\n  \"weighInEndsAt\": \"2026-08-22T12:00:00.000Z\",\n  \"plannedBoutCount\": 12,\n  \"boutSpacingMinutes\": 18,\n  \"socialUrl\": \"https://example.com/event\",\n  \"videoEmbedUrl\": \"https://www.youtube.com/embed/example\"\n}" },
+            "url": { "raw": "{{baseUrl}}/events" }
+          }
+        },
+        {
+          "name": "Get Event",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}" } }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"inviting\",\n  \"plannedBoutCount\": 14,\n  \"boutSpacingMinutes\": 17\n}" },
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}" }
+          }
+        },
+        {
+          "name": "List Invitations",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}/invitations" } }
+        },
+        {
+          "name": "Send Invitation to Roster",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"gymId\": \"{{gymId}}\",\n  \"message\": \"We would like your team on this card.\",\n  \"fighterCriteria\": {\n    \"disciplines\": [\"Muay Thai\"],\n    \"classes\": [\"N class\", \"C class\", \"B class\"],\n    \"weightRangeKg\": { \"min\": 50, \"max\": 82 },\n    \"ages\": { \"min\": 16, \"max\": 35 },\n    \"notes\": \"Priority for novice female fighters around 60 kg.\"\n  }\n}" },
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/invitations" }
+          }
+        },
+        {
+          "name": "Respond to Invitation",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"accepted\",\n  \"responseMessage\": \"We will submit our roster before the deadline.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/invitations/{{invitationId}}" }
+          }
+        },
+        {
+          "name": "List Event Media",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}/media" } }
+        },
+        {
+          "name": "Add Event Media",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"mediaType\": \"promo\",\n  \"title\": \"Official event poster\",\n  \"url\": \"https://example.com/media/event-poster.jpg\"\n}" },
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/media" }
+          }
+        },
+        {
+          "name": "List Rosters",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}/rosters" } }
+        },
+        {
+          "name": "Create or Submit Roster",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.rosterId) pm.environment.set('rosterId', body.rosterId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"gymId\": \"{{gymId}}\",\n  \"notes\": \"All fighters are available for the full event window.\",\n  \"submit\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/rosters" }
+          }
+        },
+        {
+          "name": "Add Fighter to Roster",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.rosterFighterId) pm.environment.set('rosterFighterId', body.rosterFighterId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fighterId\": \"{{fighterId}}\",\n  \"enteredWeightKg\": 60.4,\n  \"requestedDiscipline\": \"Muay Thai\",\n  \"requestedClass\": \"N class\",\n  \"availabilityNotes\": \"Available from 17:00.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/rosters/{{rosterId}}/fighters" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bouts, Decisions & Safety",
+      "item": [
+        {
+          "name": "List Bouts",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}/bouts" } }
+        },
+        {
+          "name": "Create Bout",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.boutId) pm.environment.set('boutId', body.boutId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"boutNumber\": 2,\n  \"discipline\": \"Muay Thai\",\n  \"boutClass\": \"N class\",\n  \"numberOfRounds\": 3,\n  \"roundLengthSeconds\": 120,\n  \"breakLengthSeconds\": 60,\n  \"weightDivision\": \"Lightweight\",\n  \"contractWeightKg\": 61,\n  \"beltTitle\": \"Regional Novice Title\",\n  \"scheduledAt\": \"2026-08-22T19:00:00.000Z\",\n  \"redFighterId\": \"{{fighterId}}\",\n  \"blueFighterId\": \"{{blueFighterId}}\",\n  \"status\": \"confirmed\"\n}" },
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}/bouts" }
+          }
+        },
+        {
+          "name": "Update Bout",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"scheduledAt\": \"2026-08-22T19:18:00.000Z\",\n  \"boutNumber\": 3,\n  \"status\": \"published\"\n}" },
+            "url": { "raw": "{{baseUrl}}/bouts/{{boutId}}" }
+          }
+        },
+        {
+          "name": "List Bout Media",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/bouts/{{boutId}}/media" } }
+        },
+        {
+          "name": "Add Bout Media",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"mediaType\": \"social\",\n  \"title\": \"Bout announcement\",\n  \"url\": \"https://social.example/posts/bout-announcement\"\n}" },
+            "url": { "raw": "{{baseUrl}}/bouts/{{boutId}}/media" }
+          }
+        },
+        {
+          "name": "Record Bout Decision",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"winnerFighterId\": \"{{fighterId}}\",\n  \"decision\": \"Unanimous decision\",\n  \"decisionNotes\": \"29-28 on all three scorecards.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/bouts/{{boutId}}/decision" }
+          }
+        },
+        {
+          "name": "Submit Scorecard",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"redScore\": 29,\n  \"blueScore\": 28,\n  \"decision\": \"Red corner\",\n  \"notes\": \"Red won rounds one and three.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/bouts/{{boutId}}/scorecards" }
+          }
+        },
+        {
+          "name": "Withdraw Fighter",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fighterId\": \"{{fighterId}}\",\n  \"eventId\": \"{{eventId}}\",\n  \"boutId\": \"{{boutId}}\",\n  \"rosterFighterId\": \"{{rosterFighterId}}\",\n  \"reasonCategory\": \"injury\",\n  \"reasonDetails\": \"The fighter sustained a hand injury in training and has been advised not to compete.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/withdrawals" }
+          }
+        },
+        {
+          "name": "List Event Weigh-ins",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/events/{{eventId}}/weigh-ins" } }
+        },
+        {
+          "name": "Record Weigh-in",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"fighterId\": \"{{fighterId}}\",\n  \"boutId\": \"{{boutId}}\",\n  \"weightKg\": 60.7,\n  \"weighedAt\": \"2026-08-22T10:15:00.000Z\",\n  \"notes\": \"Official scales, first attempt.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/weigh-ins" }
+          }
+        },
+        {
+          "name": "Sign Waiver Declaration",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"fighterId\": \"{{fighterId}}\",\n  \"declarationVersion\": \"2026.1\",\n  \"accepted\": true,\n  \"medicalFitnessDeclared\": true,\n  \"guardianConsent\": false,\n  \"signedName\": \"Avery Cole\"\n}" },
+            "url": { "raw": "{{baseUrl}}/waivers" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documents & Notifications",
+      "item": [
+        {
+          "name": "List Entity Documents",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/documents?entityType=fighter&entityId={{fighterId}}" } }
+        },
+        {
+          "name": "Upload SQL Blob Document",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.documentId) pm.environment.set('documentId', body.documentId);"] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"entityType\": \"fighter\",\n  \"entityId\": \"{{fighterId}}\",\n  \"documentType\": \"weigh_in_evidence\",\n  \"fileName\": \"weigh-in-proof.txt\",\n  \"contentType\": \"text/plain\",\n  \"base64Content\": \"V2VpZ2gtaW4gZXZpZGVuY2UgZXhhbXBsZQ==\",\n  \"isPrivate\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/documents" }
+          }
+        },
+        {
+          "name": "Download Document",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/documents/{{documentId}}" } }
+        },
+        {
+          "name": "List Notifications",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const body = pm.response.json();", "if (body.items && body.items[0]) pm.environment.set('notificationId', body.items[0].notificationId);"] }
+          }],
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/notifications" } }
+        },
+        {
+          "name": "Mark Notification Read",
+          "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/notifications/{{notificationId}}/read" } }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8888/api/v1" },
+    { "key": "token", "value": "" }
+  ]
+}
